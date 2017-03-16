@@ -12,8 +12,8 @@ $(libMPOST): ../MPOST_Linux/*.h ../MPOST_Linux/*.cpp
 	make -C ../MPOST_Linux/Release clean all
 
 # Tool invocations
-mpostmodule.so: CAcceptor.o
-	$(CXX) -rdynamic -shared -fPIC -o $@ CAcceptor.o $(LIBS) -lboost_python
+mpostmodule.so: mpostmodule.o
+	$(CXX) -rdynamic -shared -fPIC -o $@ mpostmodule.o $(LIBS) -lboost_python
 
 # Other Targets
 clean:
