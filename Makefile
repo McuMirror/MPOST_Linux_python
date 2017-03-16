@@ -1,12 +1,12 @@
 
-CXXFLAGS = -fPIC -I/usr/include/python2.7 -I../MPOST_Linux/
+CXXFLAGS = -g -fPIC -I/usr/include/python2.7 -I../MPOST_Linux/
 LDFLAGS =
 LIBS = $(libMPOST)
 
 libMPOST = ../MPOST_Linux/Release/libMPOST_Linux.a
 
 # All Target
-all: libpympost.so
+all: mpostmodule.so
 
 $(libMPOST): ../MPOST_Linux/*.h ../MPOST_Linux/*.cpp
 	make -C ../MPOST_Linux/Release clean all
@@ -37,7 +37,7 @@ testso: test.o libpympost.so
 
 # Other Targets
 clean:
-	-$(RM) *.o main.o libpympost.so libpympost.a test testso test.o
+	-$(RM) *.o *.so *.a main.o libpympost.so libpympost.a test testso test.o
 	-@echo ' '
 
 TAGS:

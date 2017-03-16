@@ -1,3 +1,4 @@
+#include <iostream>
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include "Acceptor.h"
@@ -5,6 +6,33 @@
 using namespace boost::python;
 using namespace MPOST;
 
+class gil_lock
+{
+public:
+  gil_lock()  { state_ = PyGILState_Ensure(); }
+  ~gil_lock() { PyGILState_Release(state_);   }
+private:
+  PyGILState_STATE state_;
+};
+
+boost::python::object eventcallbacks[28];
+
+void raiseEvent(CAcceptor *g_acceptor, Event event, int value)
+{
+    if (eventcallbacks[event])
+    {
+       gil_lock lock;
+       eventcallbacks[event](event, value);
+    }
+}
+
+void registerCallback(CAcceptor *g_acceptor, boost::python::object &callback, Event event)
+{
+    PyEval_InitThreads();
+    PyEval_ReleaseLock();
+    eventcallbacks[event] = callback;
+    g_acceptor->SetEventHandler(event, &raiseEvent);
+}
 
 struct CBill_to_python_tuple
 {
@@ -140,6 +168,7 @@ BOOST_PYTHON_MODULE(mpost)
         .def("flashdownload", &CAcceptor::FlashDownload)
         .def("softreset", &CAcceptor::SoftReset)
         .def("clearcashboxtotal", &CAcceptor::ClearCashBoxTotal)
+        .def("registercallback", &registerCallback)
         .add_property("bill", &CAcceptor::GetBill)
         .add_property("billtypes", &CAcceptor::GetBillTypes)
         .add_property("billvalues", &CAcceptor::GetBillValues)
@@ -188,3 +217,5 @@ BOOST_PYTHON_MODULE(mpost)
 */
         ;
 }
+
+
