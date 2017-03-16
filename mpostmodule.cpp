@@ -34,6 +34,11 @@ void registerCallback(CAcceptor *g_acceptor, boost::python::object &callback, Ev
     g_acceptor->SetEventHandler(event, &raiseEvent);
 }
 
+void translateException(CAcceptorException const& e)
+{
+    PyErr_SetString(PyExc_RuntimeError, e.GetDescription().c_str());
+}
+
 struct CBill_to_python_tuple
 {
     static PyObject* convert(CBill s)
@@ -158,6 +163,8 @@ BOOST_PYTHON_MODULE(mpost)
     boost::python::to_python_converter<CBill, CBill_to_python_tuple>();
     to_python_converter<std::vector<CBill, std::allocator<CBill> >, 
                         VecToList<CBill> >();
+
+    register_exception_translator<CAcceptorException>(&translateException);
 
     class_<CAcceptor,boost::noncopyable>("CAcceptor")
         .def("open", &CAcceptor::Open)
