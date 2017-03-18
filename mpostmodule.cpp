@@ -22,7 +22,8 @@ void raiseEvent(CAcceptor *g_acceptor, Event event, int value)
     if (eventcallbacks[event])
     {
        gil_lock lock;
-       eventcallbacks[event](event, value);
+       boost::python::object acceptor(boost::cref(g_acceptor));
+       eventcallbacks[event](acceptor, event, value);
     }
 }
 

@@ -4,11 +4,11 @@ import time
 import glob
 import mpost
 
-def eventHandler(event, value):
-    print m.bill, event
+def eventHandler(acceptor, event, value):
+    print acceptor.bill, event
     if event == mpost.event.EscrowEvent:
         time.sleep(1)
-        m.escrowstack()
+        acceptor.escrowstack()
 
 for f in glob.glob('/dev/ttyUSB*'):
     m = mpost.CAcceptor()
