@@ -68,13 +68,29 @@ struct VecToList
     }
 };
 
-BOOST_PYTHON_MODULE(mpost)
+BOOST_PYTHON_MODULE(_mpost)
 {
     enum_<BNFStatus>("bnfstatus")
         .value("unknown", Unknown)
         .value("ok", OK)
         .value("notattached", NotAttached)
         .value("error", Error)
+        ;
+
+    enum_<DocumentType>("documenttype")
+        .value("None", None)
+        .value("NoValue", NoValue)
+        .value("Bill", Bill)
+        .value("Barcode", Barcode)
+        .value("Coupon", Coupon)
+        ;
+
+    enum_<Orientation>("orientation")
+        .value("RightUp", RightUp)
+        .value("RightDown", RightDown)
+        .value("LeftUp", LeftUp)
+        .value("LeftDown", LeftDown)
+        .value("UnknownOrientation", UnknownOrientation)
         ;
 
     enum_<PowerUp>("powerup")
@@ -165,9 +181,16 @@ BOOST_PYTHON_MODULE(mpost)
     to_python_converter<std::vector<CBill, std::allocator<CBill> >, 
                         VecToList<CBill> >();
 
+    class_< std::vector<bool> >("VectorBool")
+        .def(vector_indexing_suite< std::vector<bool>, false> ())
+        ;
+    class_< std::vector<int> >("VectorInt")
+        .def(vector_indexing_suite< std::vector<int>, false> ())
+        ;
+
     register_exception_translator<CAcceptorException>(&translateException);
 
-    class_<CAcceptor,boost::noncopyable>("CAcceptor")
+    class_<CAcceptor,boost::noncopyable>("Acceptor")
         .def("open", &CAcceptor::Open)
         .def("close", &CAcceptor::Close)
         .def("calibrate", &CAcceptor::Calibrate)
@@ -177,6 +200,9 @@ BOOST_PYTHON_MODULE(mpost)
         .def("softreset", &CAcceptor::SoftReset)
         .def("clearcashboxtotal", &CAcceptor::ClearCashBoxTotal)
         .def("registercallback", &registerCallback)
+        .def("_auditlifetimetotals", &CAcceptor::GetAuditLifeTimeTotals)
+        .def("_auditperformance", &CAcceptor::GetAuditPerformance)
+        .def("_auditqp", &CAcceptor::GetAuditQP)
         .add_property("bill", &CAcceptor::GetBill)
         .add_property("billtypes", &CAcceptor::GetBillTypes)
         .add_property("billvalues", &CAcceptor::GetBillValues)
@@ -199,6 +225,9 @@ BOOST_PYTHON_MODULE(mpost)
         .add_property("devicestalled", &CAcceptor::GetDeviceStalled)
         .add_property("devicestate", &CAcceptor::GetDeviceState)
         .add_property("devicetype", &CAcceptor::GetDeviceType)
+        .add_property("orientation", &CAcceptor::GetEscrowOrientation)
+        .add_property("barcode", &CAcceptor::GetBarCode)
+
 /*
         .add_property("", &CAcceptor::Get)
         .add_property("", &CAcceptor::Get)
@@ -215,6 +244,8 @@ BOOST_PYTHON_MODULE(mpost)
                       &CAcceptor::GetDebugLog, &CAcceptor::SetDebugLog)
         .add_property("debuglogpath",
                       &CAcceptor::GetDebugLogPath, &CAcceptor::SetDebugLogPath)
+        .add_property("barcodeenable",
+                      &CAcceptor::GetEnableBarCodes, &CAcceptor::SetEnableBarCodes)
         .add_property("billtypeenables",
                       &CAcceptor::GetBillTypeEnables, &CAcceptor::SetBillTypeEnables)
         .add_property("billvalueenables",

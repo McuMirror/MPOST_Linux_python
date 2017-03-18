@@ -5,14 +5,13 @@ import glob
 import mpost
 
 def eventHandler(acceptor, event, value):
-    print acceptor.bill, event
+    print event
     if event == mpost.event.EscrowEvent:
-        time.sleep(1)
+	print acceptor.bill
         acceptor.escrowstack()
 
 for f in glob.glob('/dev/ttyUSB*'):
-    m = mpost.CAcceptor()
-    m.open(f, mpost.powerup.A)
+    m = mpost.Acceptor(f)
     # sleep after opening since it can take a while to get
     time.sleep(1)
     print 'm.devicestate: ',
